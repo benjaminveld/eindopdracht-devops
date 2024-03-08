@@ -6,21 +6,29 @@ from uuid import UUID, uuid4
 
 app = FastAPI(openapi_url=None)
 
-class Gender(str, Enum):
+class GenderDTO(str, Enum):
     male = "Male"
     female = "Female"
     other = "Other"
 
-class Role(str, Enum):
+class RoleDTO(str, Enum):
     student = "Student"
     working = "Working"
     retiree = "Retiree"
 
-class User(BaseModel):
+class CurrencyDTO(str, Enum): #even om te testen
+    bitcoin = "btc"
+    ethereum = "eth"
+
+class UserDTO(BaseModel):
     id: Optional[UUID] = uuid4() 
     first_name: str 
     last_name: str 
     middle_name: Optional[str] = None
-    gender: Optional[Gender]
+    gender: Optional[GenderDTO]
     age: int 
-    role: Role
+    role: RoleDTO
+
+class FavoriteDTO(BaseModel):
+    id: Optional[str]
+    currency: CurrencyDTO
