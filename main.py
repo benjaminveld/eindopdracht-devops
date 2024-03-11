@@ -59,4 +59,4 @@ async def fetch_transactions():
 @app.post("/api/v1/transactions")
 async def register_transaction(transaction: TransactionDTO):
     transactiondb.append(transaction)
-    return{"transaction": transaction.amount & transaction.currency }
+    return{"transaction amount": transaction.amount, "currency": transaction.currency }
