@@ -32,3 +32,9 @@ class UserDTO(BaseModel):
 class FavoriteDTO(BaseModel):
     id: Optional[str]
     currency: CurrencyDTO
+
+class TransactionDTO(BaseModel):
+    id: Optional[str]
+    currency: CurrencyDTO
+    amount: int
+

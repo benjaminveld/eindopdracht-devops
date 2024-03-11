@@ -2,7 +2,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
-from models import UserDTO, GenderDTO, RoleDTO, FavoriteDTO
+from models import UserDTO, GenderDTO, RoleDTO, FavoriteDTO, TransactionDTO
 from uuid import UUID, uuid4
 
 app = FastAPI()
@@ -30,6 +30,10 @@ favoritedb: List[FavoriteDTO]= [
 
 ]
 
+transactiondb: List[TransactionDTO]= [
+
+]
+
 @app.get("/api/v1/users")
 async def fetch_users():
     return userdb;
@@ -47,3 +51,12 @@ async def fetch_favorite():
 async def register_favorites(favorite: FavoriteDTO):
     favoritedb.append(favorite)
     return{"favorite": favorite.currency}
+
+@app.get("/api/v1/transactions")
+async def fetch_transactions():
+    return transactiondb
+
+@app.post("/api/v1/transactions")
+async def register_transaction(transaction: TransactionDTO):
+    transactiondb.append(transaction)
+    return{"transaction": transaction.amount & transaction.currency }
