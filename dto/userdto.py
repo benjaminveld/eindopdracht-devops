@@ -1,3 +1,4 @@
+#userdto
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
@@ -6,19 +7,15 @@ from uuid import UUID, uuid4
 
 app = FastAPI(openapi_url=None)
 
-class GenderDTO(str, Enum):
-    male = "Male"
-    female = "Female"
-    other = "Other"
-
 class RoleDTO(str, Enum):
     student = "Student"
     working = "Working"
     retiree = "Retiree"
 
-class CurrencyDTO(str, Enum): #even om te testen
-    bitcoin = "btc"
-    ethereum = "eth"
+class GenderDTO(str, Enum):
+    male = "Male"
+    female = "Female"
+    other = "Other"
 
 class UserDTO(BaseModel):
     id: Optional[UUID] = uuid4() 
@@ -28,13 +25,3 @@ class UserDTO(BaseModel):
     gender: Optional[GenderDTO]
     age: int 
     role: RoleDTO
-
-class FavoriteDTO(BaseModel):
-    id: Optional[str]
-    currency: CurrencyDTO
-
-class TransactionDTO(BaseModel):
-    id: Optional[str]
-    currency: CurrencyDTO
-    amount: int
-
