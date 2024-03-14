@@ -1,5 +1,7 @@
 from typing import List
 
+from fastapi import HTTPException
+
 from dtos.userdtos import UserDTO, UserCreateDTO
 from models.user import User
 
@@ -26,3 +28,17 @@ def register_user(user: UserCreateDTO, db) -> UserDTO:
     db.commit()
     db.refresh(db_user)
     return map_user(db_user)
+
+
+def get_logged_in_user(token: str, db) -> UserDTO:
+    db_user = db.query(User).filter(User.gebruikersnaam == token).first()
+    return map_user(db_user)
+
+
+def authenticate_user(gebruikersnaam, wachtwoord, db) -> UserDTO:
+    user_db = db.query(User).filter(User.gebruikersnaam == gebruikersnaam).first()
+    if not user_db:
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    if not wachtwoord == user_db.wachtwoord:
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    return map_user(user_db)

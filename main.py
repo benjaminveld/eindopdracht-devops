@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Annotated
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from database import SessionLocal
 from dtos.favorietdtos import FavorietCreateDTO, FavorietDTO
@@ -9,6 +10,7 @@ from dtos.userdtos import UserDTO, UserCreateDTO
 from services import userservice, favorietservice, transactieservice
 
 app = FastAPI()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def get_db():
@@ -17,6 +19,17 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db=Depends(get_db)) -> UserDTO:
+    user = userservice.get_logged_in_user(token, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
 
 
 @app.get("/api/v1/users")
@@ -30,25 +43,31 @@ async def register_user(user: UserCreateDTO, db=Depends(get_db)) -> UserDTO:
 
 
 @app.get("/api/v1/favorieten")
-async def get_favorieten(db=Depends(get_db)) -> List[FavorietDTO]:
-    return favorietservice.get_favorieten(1, db)
+async def get_favorieten(current_user: Annotated[UserDTO, Depends(get_current_user)], db=Depends(get_db)) -> List[FavorietDTO]:
+    return favorietservice.get_favorieten(current_user.id, db)
 
 
 @app.post("/api/v1/favorieten")
-async def register_favoriet(favoriet: FavorietCreateDTO, db=Depends(get_db)) -> FavorietDTO:
-    return favorietservice.register_favoriet(favoriet, 1, db)
+async def register_favoriet(current_user: Annotated[UserDTO, Depends(get_current_user)], favoriet: FavorietCreateDTO, db=Depends(get_db)) -> FavorietDTO:
+    return favorietservice.register_favoriet(favoriet, current_user.id, db)
 
 
 @app.delete("/api/v1/favorieten/{favoriet_id}", status_code=204)
-async def delete_favoriet(favoriet_id: int, db=Depends(get_db)):
-    favorietservice.delete_favoriet(favoriet_id, 1, db)
+async def delete_favoriet(favoriet_id: int, current_user: Annotated[UserDTO, Depends(get_current_user)], db=Depends(get_db)):
+    favorietservice.delete_favoriet(favoriet_id, current_user.id, db)
 
 
 @app.get("/api/v1/transacties")
-async def get_transacties(db=Depends(get_db)) -> List[TransactieDTO]:
-    return transactieservice.get_transacties(1, db)
+async def get_transacties(current_user: Annotated[UserDTO, Depends(get_current_user)], db=Depends(get_db)) -> List[TransactieDTO]:
+    return transactieservice.get_transacties(current_user.id, db)
 
 
 @app.post("/api/v1/transacties")
-async def register_transactie(transactie: TransactieCreateDTO, db=Depends(get_db)) -> TransactieDTO:
-    return transactieservice.register_transactie(transactie, 1, db)
+async def register_transactie(transactie: TransactieCreateDTO, current_user: Annotated[UserDTO, Depends(get_current_user)], db=Depends(get_db)) -> TransactieDTO:
+    return transactieservice.register_transactie(transactie, current_user.id, db)
+
+
+@app.post("/token")
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db=Depends(get_db)):
+    user = userservice.authenticate_user(form_data.username, form_data.password, db)
+    return {"access_token": user.gebruikersnaam, "token_type": "bearer"}
