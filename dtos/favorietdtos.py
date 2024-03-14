@@ -1,14 +1,17 @@
 from pydantic import BaseModel
 
+from dtos.cryptocurrencydtos import CryptocurrencyDTO
+
 
 class FavorietBase(BaseModel):
-    cryptocurrency: str
+    pass
 
 
 class FavorietDTO(FavorietBase):
     id: int
     user_id: int
+    cryptocurrency: CryptocurrencyDTO
 
 
 class FavorietCreateDTO(FavorietBase):
-    pass
+    cryptocurrency: str
