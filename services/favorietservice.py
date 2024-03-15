@@ -2,6 +2,7 @@ from typing import List
 
 from dtos.favorietdtos import FavorietCreateDTO, FavorietDTO
 from models.favoriet import Favoriet
+from services.cryptocurrencyservice import map_cryptocurrency, get_or_create_cryptocurrency
 
 
 def get_favorieten(user_id: int, db) -> List[FavorietDTO]:
@@ -12,14 +13,15 @@ def get_favorieten(user_id: int, db) -> List[FavorietDTO]:
 def map_favoriet(favoriet: Favoriet) -> FavorietDTO:
     return FavorietDTO(
         id=favoriet.id,
-        cryptocurrency=favoriet.cryptocurrency,
+        cryptocurrency=map_cryptocurrency(favoriet.cryptocurrency),
         user_id=favoriet.user_id
     )
 
 
 def register_favoriet(favoriet: FavorietCreateDTO, user_id: int, db) -> FavorietDTO:
+    cryptocurrency = get_or_create_cryptocurrency(favoriet.cryptocurrency, db)
     db_favoriet = Favoriet(
-        cryptocurrency=favoriet.cryptocurrency,
+        cryptocurrency_id=cryptocurrency.id,
         user_id=user_id
     )
     db.add(db_favoriet)

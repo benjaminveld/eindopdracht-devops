@@ -67,7 +67,7 @@ async def register_transactie(transactie: TransactieCreateDTO, current_user: Ann
     return transactieservice.register_transactie(transactie, current_user.id, db)
 
 
-@app.post("/token")
+@app.post("/token", include_in_schema=False)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db=Depends(get_db)):
     user = userservice.authenticate_user(form_data.username, form_data.password, db)
     return {"access_token": user.gebruikersnaam, "token_type": "bearer"}

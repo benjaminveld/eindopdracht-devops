@@ -35,7 +35,7 @@ def get_logged_in_user(token: str, db) -> UserDTO:
     return map_user(db_user)
 
 
-def authenticate_user(gebruikersnaam, wachtwoord, db) -> UserDTO:
+def authenticate_user(gebruikersnaam: str, wachtwoord: str, db) -> UserDTO:
     user_db = db.query(User).filter(User.gebruikersnaam == gebruikersnaam).first()
     if not user_db:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
