@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from database import SessionLocal
 from dtos.favorietdtos import FavorietCreateDTO, FavorietDTO
 from dtos.livecoinwatchdtos import CoinMapDTO
-from dtos.transactiedtos import TransactieDTO, TransactieCreateDTO
+from dtos.transactiedtos import TransactieDTO, TransactieCreateDTO, BalansOverzichtDTO
 from dtos.userdtos import UserDTO, UserCreateDTO
 from services import userservice, favorietservice, transactieservice
 
@@ -73,9 +73,9 @@ async def get_favorieten_overzicht(current_user: Annotated[UserDTO, Depends(get_
     return favorietservice.get_favorieten_overzicht(current_user.id, db)
 
 
-@app.get("/api/v1/transacties/overzicht")
-async def get_transactie_overzicht(current_user: Annotated[UserDTO, Depends(get_current_user)], db=Depends(get_db)):
-    return transactieservice.get_transacties(current_user.id, db)
+@app.get("/api/v1/transacties/balans")
+async def get_transactie_overzicht(current_user: Annotated[UserDTO, Depends(get_current_user)], db=Depends(get_db)) -> BalansOverzichtDTO:
+    return transactieservice.get_balans_overzicht(current_user.id, db)
 
 
 @app.post("/token", include_in_schema=False)

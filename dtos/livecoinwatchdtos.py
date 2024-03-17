@@ -18,3 +18,8 @@ class CoinMapDTO(BaseModel):
     verandering_1_week: float
     verandering_1_maand: float
     verandering_1_jaar: float
+
+
+class HistoryDTO(BaseModel):
+    datum: int
+    prijs_in_euro: float

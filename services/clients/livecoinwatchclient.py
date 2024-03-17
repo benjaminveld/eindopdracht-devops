@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime
 
 import requests
 from typing import List
@@ -7,7 +8,7 @@ from typing import List
 from dotenv import load_dotenv
 from fastapi import HTTPException
 
-from dtos.livecoinwatchdtos import CoinMapDTO
+from dtos.livecoinwatchdtos import CoinMapDTO, HistoryDTO
 
 load_dotenv()
 
@@ -19,7 +20,7 @@ headers = {
 }
 
 
-def validate_coin_exists(afkorting: str) -> CoinMapDTO:
+def get_coin_if_exists(afkorting: str) -> CoinMapDTO:
     coins = get_coins_informatie([afkorting])
     if not coins:
         raise HTTPException(status_code=400, detail="Deze cryptocurrency bestaat niet. Maak gebruikt van de afkorting van de cryptocurrency (E.g. BTC, ETH, VET).")
@@ -47,6 +48,13 @@ def map_coin(cryptocurrency) -> CoinMapDTO:
     )
 
 
+def map_history(history) -> HistoryDTO:
+    return HistoryDTO(
+        datum=int(history['date']),
+        prijs_in_euro=float(history['rate'])
+    )
+
+
 def get_coins_informatie(coin_afkortingen: List[str]) -> List[CoinMapDTO]:
     if not coin_afkortingen:
         return []
@@ -70,3 +78,25 @@ def get_coins_informatie(coin_afkortingen: List[str]) -> List[CoinMapDTO]:
         #TODO: logging
         print(response)
         raise HTTPException(status_code=503, detail="Livecoinwatch API is niet beschikbaar. Probeer het later opnieuw.")
+
+
+def get_coin_history(afkorting: str, tijdstip: datetime) -> HistoryDTO:
+    payload = json.dumps({
+        "code": afkorting,
+        "currency": "EUR",
+        "start": tijdstip.timestamp() * 1000,
+        "end": tijdstip.timestamp() * 1000 + 100000000,
+        "meta": False
+    })
+
+    response = requests.request("POST", URL+"/coins/single/history", headers=headers, data=payload)
+
+    if response.status_code == 200:
+        histories = response.json()
+        return map_history(histories['history'][0])
+    else:
+        # TODO: logging
+        print(response.__dict__)
+        raise HTTPException(status_code=503, detail="Livecoinwatch API is niet beschikbaar. Probeer het later opnieuw.")
+
+
