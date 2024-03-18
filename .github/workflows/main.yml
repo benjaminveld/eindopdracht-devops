@@ -14,7 +14,9 @@ jobs:
       - name: Checkout the repo 
         uses: actions/checkout@v2
       - name: Build image 
-        run: docker build -t devops/crypto-api .
+        run: docker build -t devops/crypto-api \
+          --build-arg DB_CONNECTION_STRING=${{ secrets.DB_CONNECTION_STRING }} \
+          --build-arg LIVECOINWATCH_API_KEY=${{ secrets.LIVECOINWATCH_API_KEY }} .
       - name: Install doctl 
         uses: digitalocean/action-doctl@v2
         with:
