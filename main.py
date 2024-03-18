@@ -38,7 +38,7 @@ async def get_users(db=Depends(get_db)) -> List[UserDTO]:
     return userservice.get_users(db)
 
 
-@app.post("/api/v1/users")
+@app.post("/api/v1/users", status_code=201)
 async def register_user(user: UserCreateDTO, db=Depends(get_db)) -> UserDTO:
     return userservice.register_user(user, db)
 
@@ -48,7 +48,7 @@ async def get_favorieten(current_user: Annotated[UserDTO, Depends(get_current_us
     return favorietservice.get_favorieten(current_user.id, db)
 
 
-@app.post("/api/v1/favorieten")
+@app.post("/api/v1/favorieten", status_code=201)
 async def register_favoriet(current_user: Annotated[UserDTO, Depends(get_current_user)], favoriet: FavorietCreateDTO, db=Depends(get_db)) -> FavorietDTO:
     return favorietservice.register_favoriet(favoriet, current_user.id, db)
 
@@ -63,7 +63,7 @@ async def get_transacties(current_user: Annotated[UserDTO, Depends(get_current_u
     return transactieservice.get_transacties(current_user.id, db)
 
 
-@app.post("/api/v1/transacties")
+@app.post("/api/v1/transacties", status_code=201)
 async def register_transactie(transactie: TransactieCreateDTO, current_user: Annotated[UserDTO, Depends(get_current_user)], db=Depends(get_db)) -> TransactieDTO:
     return transactieservice.register_transactie(transactie, current_user.id, db)
 
