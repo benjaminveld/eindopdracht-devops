@@ -20,6 +20,9 @@ def map_user(user: User) -> UserDTO:
 
 
 def register_user(user: UserCreateDTO, db) -> UserDTO:
+    db_user = db.query(User).filter(User.gebruikersnaam == user.gebruikersnaam).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="Deze gebruikersnaam is al in gebruik.")
     db_user = User(
         gebruikersnaam=user.gebruikersnaam,
         wachtwoord=user.wachtwoord
