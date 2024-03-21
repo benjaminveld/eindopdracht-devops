@@ -10,7 +10,6 @@ from dtos.transactiedtos import TransactieDTO, TransactieCreateDTO, BalansOverzi
 from dtos.userdtos import UserDTO, UserCreateDTO
 from services import userservice, favorietservice, transactieservice
 
-from logger import logger
 from middleware import log_middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
