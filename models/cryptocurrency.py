@@ -5,7 +5,7 @@ from .base import Base
 
 
 class Cryptocurrency(Base):
-    __tablename__ = 'CRYPTOCURRENCY'
+    __tablename__ = 'CRYPTOCURRENCIES'
     id = Column(Integer, primary_key=True, index=True)
     naam = Column(String)
     afkorting = Column(String, index=True)
