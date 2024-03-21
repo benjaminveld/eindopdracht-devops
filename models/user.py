@@ -6,7 +6,7 @@ from .transactie import Transactie
 
 
 class User(Base):
-    __tablename__ = 'USER'
+    __tablename__ = 'USERS'
     id = Column(Integer, primary_key=True, index=True)
     gebruikersnaam = Column(String, index=True)
     wachtwoord = Column(String)
