@@ -6,7 +6,6 @@ async def log_middleware(request: Request, call_next):
         "url": request.url.path,
         "method": request.method,
     }
-    logger.info(log_dict)
 
     response = await call_next(request)
 
