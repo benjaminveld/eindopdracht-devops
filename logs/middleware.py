@@ -1,5 +1,5 @@
 from fastapi import Request
-from apilogger import logger
+from logs.apilogger import logger
 
 async def log_middleware(request: Request, call_next):
     log_dict= {
