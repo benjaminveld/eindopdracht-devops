@@ -24,7 +24,7 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_CONNECTION_STRING: "sqlite:///:memory:"
+          DB_CONNECTION_STRING: "sqlite:///:memory:"
         run: |
           pytest --cov-fail-under=90
 
