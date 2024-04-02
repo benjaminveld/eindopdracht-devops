@@ -55,6 +55,7 @@ jobs:
         run: docker push registry.digitalocean.com/devopscontainertje/crypto-api:$(echo $GITHUB_SHA | head -c7)
 
   deploy:
+    environment: prod
     needs: build_and_push
     runs-on: ubuntu-latest
     steps:
@@ -65,6 +66,9 @@ jobs:
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_TOKEN }}
+
+      - name: Log in to DO Container Registry 
+        run: doctl registry login --expiry-seconds 600    
         
       - name: Update deployment file
         run: |
