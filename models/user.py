@@ -7,7 +7,7 @@ from .transactie import Transactie
 
 class User(Base):
     __tablename__ = 'USERS'
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     gebruikersnaam = Column(String, index=True)
     wachtwoord = Column(String)
     favorieten = relationship("Favoriet", back_populates="user")
