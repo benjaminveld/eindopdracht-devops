@@ -23,6 +23,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run tests
+        env:
+          DATABASE_CONNECTION_STRING: "sqlite:///:memory:"
         run: |
           pytest --cov-fail-under=90
 
