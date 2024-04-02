@@ -1,0 +1,34 @@
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'config/**'
+      - 'server.py'
+      - 'Dockerfile'
+      - '.github/workflows/main.yaml'
+
+jobs:
+   build:
+     runs-on: ubuntu-latest
+     steps: 
+      - name: Checkout master
+        uses: actions/checkout@main
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+            token: ${{ secrets.DIGITALOCEAN_TOKEN }}
+      
+      - name: Update deployment file
+        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|registry.digitalocean.com/devopscontainertje/crypto-api:'${TAG}'|' $GITHUB_WORKSPACE/config/deployment.yml
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 fastapi-devops-cluster
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/config/deployment.yaml
+
+      - name: Verify deployment
+        run: kubectl rollout status deployment/fastapi-devops
+
+ 
