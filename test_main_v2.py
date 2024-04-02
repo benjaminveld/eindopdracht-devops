@@ -1,22 +1,14 @@
 "Final Test Code V2"
+from main import app, get_db
+from models.base import Base
+
 "=================="
 
-from sqlalchemy import create_engine, inspect
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
-from main import app, get_db
 from sqlalchemy.pool import StaticPool
-import random
 import concurrent.futures
-
-from models.base import Base
-from models.user import User
-from models.favoriet import Favoriet
-from models.transactie import Transactie
-
-# import services.favorietservice
-# import services.transactieservice
-
 
 from models.cryptocurrency import Cryptocurrency
 
@@ -91,21 +83,33 @@ def get_user_token():
 "-----------------------------------------------------------------------------------------------------------------------------"
 
 def test_get_users():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     token = get_user_token()
     response = client.get("/api/v1/users", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
 
 def test_post_users():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     response = client.post("/api/v1/users", json={"gebruikersnaam": "testuser2", "wachtwoord": "testuser2"})
-    assert response.status_code == 200
+    assert response.status_code == 201
 
 def test_get_favorieten():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     token = get_user_token()
     response = client.get("/api/v1/favorieten", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     assert response.json() == []
 
 def test_post_favorieten():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     global favorieten_data  
 
     token = get_user_token()
@@ -119,13 +123,16 @@ def test_post_favorieten():
         json={"cryptocurrency": crypto_name},
         headers={"Authorization": f"Bearer {token}"}
     )
-    assert response.status_code == 200, f"Failed to add favoriet: {response.text}"
+    assert response.status_code == 201
 
     # Sla de favorieten data op voor later gebruik in test_get_favorieten_overzicht
     favorieten_data = response.json()
 
 import random
 def test_delete_favorieten():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     token = get_user_token()
     random_number = random.randint(1, 100)
     favoriet_id = random_number
@@ -133,16 +140,22 @@ def test_delete_favorieten():
     assert delete_response.status_code == 204
 
 def test_get_transacties():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     token = get_user_token()
     response = client.get("/api/v1/transacties", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
 
 def test_post_transacties():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     global transactie_data  
 
     token = get_user_token()
     response = client.post("/api/v1/transacties", json={"aantal": 10, "cryptocurrency": "BTC"}, headers={"Authorization": f"Bearer {token}"})
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     # Sla de transactiegegevens op
     transactie_data = response.json()
@@ -150,6 +163,9 @@ def test_post_transacties():
 favorieten_data = None  
 
 def test_get_favorieten_overzicht():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     global favorieten_data
 
     assert favorieten_data is not None, "favorieten_data is niet geïnitialiseerd"
@@ -184,6 +200,9 @@ def test_get_favorieten_overzicht():
 import unittest.mock
 
 def test_get_transacties_balans():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     global transactie_data
     
     assert transactie_data is not None
@@ -213,29 +232,50 @@ def test_get_transacties_balans():
 "---------------------------------------------------------------------------------------"
 
 def test_failed_user_aanmaak():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     # Test het scenario waarin het maken van een gebruiker mislukt
     response = client.post("/api/v1/users", json={"gebruiksnaam": "", "wachtwoord": ""})
     assert response.status_code == 422  
 
 
 def test_failed_user_login():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     # Test het scenario waarin het inloggen van een gebruiker mislukt
     response = client.post("/token", data={"username": "", "password": ""})
     assert response.status_code == 422  
 
 def test_failed_user_login_ongeldige_referentie():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     response = client.post("/token", data={"username": "ongeldige_gebruikersnaam", "password": "ongeldig_wachtwoord"})
     assert response.status_code == 400  
 
 def test_toegang_zonder_token():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     response = client.get("/api/v1/secure-endpoint")
     assert response.status_code == 404 
 
 def test_dubbele_user_aanmaak():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     response = client.post("/api/v1/users", json={"gebruikersnaam": "bestaande_gebruiker", "wachtwoord": "nieuw_wachtwoord"})
-    assert response.status_code == 200 
+    assert response.status_code == 201
+
+    response = client.post("/api/v1/users", json={"gebruikersnaam": "bestaande_gebruiker", "wachtwoord": "nieuw_wachtwoord"})
+    assert response.status_code == 400
 
 def test_maximum_favorieten():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     # Test het scenario waarin het maximale aantal favorieten wordt toegevoegd
     token = get_user_token()
     max_favorieten = 0 # Stel het maximale aantal favorieten in
@@ -251,6 +291,9 @@ def test_maximum_favorieten():
 import concurrent.futures
 
 def test_gelijktijdige_verzoeken():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     # Test het scenario met meerdere gelijktijdige verzoeken
     token = get_user_token()
     num_requests = 200 # Aantal gelijktijdige verzoeken
@@ -276,6 +319,9 @@ def test_gelijktijdige_verzoeken():
 
 
 def test_delete_favorieten_invalid_id():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     token = get_user_token()
     invalid_favoriet_id = 999999 # Een niet-bestaand favoriet_id
     delete_response = client.delete(f"/api/v1/favorieten/{invalid_favoriet_id}", headers={"Authorization": f"Bearer {token}"})
@@ -286,6 +332,9 @@ def test_delete_favorieten_invalid_id():
 "EXTRA NIET PERSE NODIG"
 "---------------------------------------------------------------------------------------"
 def test_mislukte_fetch_specifieke_user():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     # Test het scenario waarin het ophalen van specifieke gebruikersinformatie mislukt vanwege een ongeldige gebruikers-ID
     token = get_user_token()
     invalid_user_id = 999999  # Een niet-bestaande gebruikers-ID
@@ -293,6 +342,9 @@ def test_mislukte_fetch_specifieke_user():
     assert response.status_code == 404  # Niet gevonden
 
 def mislukte_fetch_specifieke_favoriet():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     # Test het scenario waarin het ophalen van specifieke favorietinformatie mislukt vanwege een ongeldige favoriet-ID
     token = get_user_token()
     invalid_favorite_id = 999999  # Een niet-bestaande favoriet-ID

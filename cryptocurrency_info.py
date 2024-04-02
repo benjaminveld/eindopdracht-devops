@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float
-from .base import Base
+from test.models.base import Base
 
 class CryptocurrencyInfo(Base):
     __tablename__ = 'cryptocurrency_info'

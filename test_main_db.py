@@ -1,55 +1,15 @@
 import unittest
 import random 
 
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine
 from sqlalchemy.exc import  DatabaseError
 from sqlalchemy.orm import sessionmaker
-from typing import List
-# from models.transactie import Transactie
-# from models.cryptocurrency import Cryptocurrency
-# from models.user import User
-# from models.favoriet import Favoriet
 
-Base = declarative_base()
-
-# Hieronder komen de testklassen en -methoden
-
-class Transactie(Base):
-    __tablename__ = 'TRANSACTIE'
-    id = Column(Integer, primary_key=True, index=True)
-    cryptocurrency_id = Column(Integer, ForeignKey('CRYPTOCURRENCIES.id'))
-    cryptocurrency = relationship("Cryptocurrency")
-    datum = Column(DateTime, server_default=func.now())
-    aantal = Column(Integer)
-    user_id = Column(Integer, ForeignKey('USER.id'))
-    user = relationship("User", back_populates="transacties")
-
-class Cryptocurrency(Base):
-    __tablename__ = 'CRYPTOCURRENCIES'
-    id = Column(Integer, primary_key=True)
-    naam = Column(String)
-    afkorting = Column(String)
-    favorieten = relationship("Favoriet", back_populates="cryptocurrency")
-
-class Favoriet(Base):
-    __tablename__ = 'FAVORIET'
-    id = Column(Integer, primary_key=True)
-    cryptocurrency_id = Column(Integer, ForeignKey('CRYPTOCURRENCIES.id'))
-    cryptocurrency = relationship("Cryptocurrency", back_populates="favorieten")
-    user_id = Column(Integer, ForeignKey('USER.id'))
-    user = relationship("User", back_populates="favorieten")
-
-class User(Base):
-    __tablename__ = 'USER'
-    id = Column(Integer, primary_key=True, index=True)
-    gebruikersnaam = Column(String, index=True)
-    wachtwoord = Column(String)
-    favorieten = relationship("Favoriet", back_populates="user")
-    transacties = relationship("Transactie", back_populates="user")
-
+from models.base import Base
+from models.cryptocurrency import Cryptocurrency
+from models.favoriet import Favoriet
+from models.transactie import Transactie
+from models.user import User
 
 engine = create_engine('sqlite:///:memory:', echo=True)
 
@@ -63,7 +23,6 @@ class TestDatabaseFunctionality(unittest.TestCase):
         self.session = SessionLocal()
 
         Base.metadata.drop_all(bind=engine)
-
         Base.metadata.create_all(bind=engine)
 
     def tearDown(self):
@@ -157,7 +116,7 @@ class TestDatabaseFunctionality(unittest.TestCase):
             transactie_info = {
                 "aantal": transactie.aantal,
                 "id": transactie.id,
-                "transactie_tijdstip": transactie.datum.isoformat(),
+                "transactie_tijdstip": transactie.transactie_tijdstip.isoformat(),
                 "user_id": transactie.user_id,
                 "cryptocurrency": {
                     "naam": transactie.cryptocurrency.naam,
@@ -167,6 +126,7 @@ class TestDatabaseFunctionality(unittest.TestCase):
             }
             transacties_overzicht.append(transactie_info)
         return transacties_overzicht
+
     def test_user_transactie_overzicht(self):
         random_number = random.randint(1, 100)
 
