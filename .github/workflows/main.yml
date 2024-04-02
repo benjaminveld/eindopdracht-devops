@@ -5,24 +5,67 @@ on:
     branches:
       - main
 
-
 jobs:
+  setup_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10.12
+
+      - name: Installeer dependencies
+        run: |
+          python -m pip install --upgrade pip 
+          pip install -r requirements.txt
+
+      - name: Checkout the repo 
+        uses: actions/checkout@v2
+
+      - name: Run tests
+        run: |
+          pytest --cov-fail-under=90
+
   build_and_push:
+    needs: setup_and_test
     environment: prod
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repo 
         uses: actions/checkout@v2
+
       - name: Build image 
         run: docker build -t devops/crypto-api --build-arg DB_CONNECTION_STRING=${{ secrets.DB_CONNECTION_STRING }} --build-arg LIVECOINWATCH_API_KEY=${{ secrets.LIVECOINWATCH_API_KEY }} .
+
       - name: Install doctl 
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_TOKEN }}
+
       - name: Log in to DO Container Registry 
         run: doctl registry login --expiry-seconds 600
+
       - name: Tag image 
         run:
-          docker tag devops/crypto-api registry.digitalocean.com/devopscontainertje/crypto-api:latest
+          docker tag devops/crypto-api registry.digitalocean.com/devopscontainertje/crypto-api:$(echo $GITHUB_SHA | head -c7)
+
       - name: Push image to DO Container Registry
         run: docker push registry.digitalocean.com/devopscontainertje/crypto-api:latest
+
+  deploy:
+    needs: build_and_push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update deployment file
+        run: |
+          TAG=$(echo $GITHUB_SHA | head -c7)
+          sed -i 's|<IMAGE>|registry.digitalocean.com/devopscontainertje/crypto-api:'${TAG}'|' $GITHUB_WORKSPACE/config/deployment.yml
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 fastapi-devops-cluster
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/config/deployment.yaml
+
+      - name: Verify deployment
+        run: kubectl rollout status deployment/fastapi-devops

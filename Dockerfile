@@ -15,4 +15,6 @@ ARG LIVECOINWATCH_API_KEY
 ENV DB_CONNECTION_STRING=${DB_CONNECTION_STRING}
 ENV LIVECOINWATCH_API_KEY=${LIVECOINWATCH_API_KEY}
 
-ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+EXPOSE 80
+
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]

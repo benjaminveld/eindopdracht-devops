@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-devops
+  labels:
+    app: fastapi-devops
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fastapi-devops
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: fastapi-devops
+    spec:
+      containers:
+      - name: fastapi-devops
+        image: registry.digitalocean.com/devopscontainertje/crypto-api:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            cpu: 100m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-example-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: fastapi-devops
