@@ -10,7 +10,11 @@ from dtos.transactiedtos import TransactieDTO, TransactieCreateDTO, BalansOverzi
 from dtos.userdtos import UserDTO, UserCreateDTO
 from services import userservice, favorietservice, transactieservice
 
+from logs.middleware import log_middleware
+from starlette.middleware.base import BaseHTTPMiddleware
+
 app = FastAPI()
+app.add_middleware(BaseHTTPMiddleware, dispatch=log_middleware)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
