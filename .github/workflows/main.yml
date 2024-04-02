@@ -22,13 +22,9 @@ jobs:
       - name: Checkout the repo 
         uses: actions/checkout@v2
 
-      - name: Run DB integratie tests
+      - name: Run tests
         run: |
-          python3 integration_tests.py  
-
-      - name: Run Unitest
-        run: |
-          python3 test_main_v2.py  
+          pytest --cov-fail-under=90
 
   build_and_push:
     needs: setup_and_test
