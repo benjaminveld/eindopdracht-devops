@@ -61,7 +61,7 @@ jobs:
       - name: Update deployment file
         run: |
           TAG=$(echo $GITHUB_SHA | head -c7)
-          sed -i 's|<IMAGE>|registry.digitalocean.com/devopscontainertje/crypto-api:'${TAG}'|' $GITHUB_WORKSPACE/config/deployment.yml
+          sed -i 's|<IMAGE>|registry.digitalocean.com/devopscontainertje/crypto-api:'${TAG}'|' $GITHUB_WORKSPACE/config/deployment.yaml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 fastapi-devops-cluster
