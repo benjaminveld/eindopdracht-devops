@@ -28,17 +28,5 @@ spec:
           requests:
             cpu: 100m
           limits:
-            cpu: 250m
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: fastapi-devops-service
-spec:
-  selector:
-    app: app.kubernetes.io/name: fastapi-devops
-  ports:
-    - port: 80
-      targetPort: 80
-  type: LoadBalancer
+            cpu: 100m
 
