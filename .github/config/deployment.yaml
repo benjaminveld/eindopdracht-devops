@@ -21,7 +21,8 @@ spec:
     spec:
       containers:
       - name: fastapi-devops
-        image: registry.digitalocean.com/devopscontainertje/crypto-api:latest
+        image: registry.digitalocean.com/devopscontainertje/crypto-api
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
         resources:
@@ -29,4 +30,3 @@ spec:
             cpu: 100m
           limits:
             cpu: 100m
-
