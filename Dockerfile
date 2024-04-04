@@ -9,6 +9,7 @@ COPY ./models ./models
 COPY ./services ./services
 COPY ./main.py ./main.py
 COPY ./database.py ./database.py
+COPY ./logs ./logs
 
 ARG DB_CONNECTION_STRING
 ARG LIVECOINWATCH_API_KEY
