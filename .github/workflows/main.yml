@@ -28,7 +28,7 @@ jobs:
           LIVECOINWATCH_API_KEY: ${{ secrets.LIVECOINWATCH_API_KEY }}
           DB_CONNECTION_STRING: "sqlite:///:memory:"
         run: |
-          pytest --cov-fail-under=90
+          pytest --cov --cov-fail-under=90
 
   build_and_push:
     needs: setup_and_test
