@@ -37,7 +37,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db=Dep
     return user
 
 
-@app.get("/api/v1/users")
+@app.get("/api/v1/users", include_in_schema=False)
 async def get_users(db=Depends(get_db)) -> List[UserDTO]:
     return userservice.get_users(db)
 
