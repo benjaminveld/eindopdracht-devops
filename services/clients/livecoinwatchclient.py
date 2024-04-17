@@ -75,8 +75,6 @@ def get_coins_informatie(coin_afkortingen: List[str]) -> List[CoinMapDTO]:
         cryptocurrencies = response.json()
         return [map_coin(cryptocurrency) for cryptocurrency in cryptocurrencies]
     else:
-        #TODO: logging
-        print(response)
         raise HTTPException(status_code=503, detail="Livecoinwatch API is niet beschikbaar. Probeer het later opnieuw.")
 
 
@@ -85,7 +83,7 @@ def get_coin_history(afkorting: str, tijdstip: datetime) -> HistoryDTO:
         "code": afkorting,
         "currency": "EUR",
         "start": tijdstip.timestamp() * 1000,
-        "end": tijdstip.timestamp() * 1000 + 100000000,
+        "end": tijdstip.timestamp() * 1000 + 1000000000,
         "meta": False
     })
 
@@ -93,10 +91,8 @@ def get_coin_history(afkorting: str, tijdstip: datetime) -> HistoryDTO:
 
     if response.status_code == 200:
         histories = response.json()
+        if len(histories['history']) == 0:
+            raise HTTPException(status_code=503, detail="Fout bij het ophalen van data van Livecoinwatch API. Neem contact op met de beheerder.")
         return map_history(histories['history'][0])
     else:
-        # TODO: logging
-        print(response.__dict__)
         raise HTTPException(status_code=503, detail="Livecoinwatch API is niet beschikbaar. Probeer het later opnieuw.")
-
-
