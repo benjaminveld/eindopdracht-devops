@@ -83,7 +83,7 @@ def get_coin_history(afkorting: str, tijdstip: datetime) -> HistoryDTO:
         "code": afkorting,
         "currency": "EUR",
         "start": tijdstip.timestamp() * 1000,
-        "end": tijdstip.timestamp() * 1000 + 1000000000,
+        "end": tijdstip.timestamp() * 1000 + 20000000,
         "meta": False
     })
 
